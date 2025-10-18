@@ -92,6 +92,53 @@ DROP JOB process_new_conversations;
 
 SHOW TRIGGERS;
 
+-- SELECT conversation_id, conversation_text
+-- FROM banking_postgres_db.conversations_summary
+-- WHERE conversation_id > LAST;
+
+-- create new job process_new_conversations (
+--     -- create view latest_conversation
+--     DROP VIEW IF EXISTS latest_conversation;
+--     CREATE VIEW latest_conversation AS
+--     SELECT 
+--         conversation_id,
+--         conversation_text,
+--         created_at
+--     FROM my_postgres.conversations_summary
+--     ORDER BY created_at DESC
+--     LIMIT 1;
+
+--     -- create view laterst_agent_answer
+--     SELECT answer
+--     FROM your_agent_name
+--     WHERE question = latest_conversation.conversation_text;
+--     DROP VIEW IF EXISTS latest_agent_answer;
+--     CREATE VIEW agent_results_view AS
+-- SELECT 
+--     json_extract(a.answer, '$.summary') AS summary,
+--     CASE 
+--         WHEN UPPER(json_extract(a.answer, '$.resolved')) = 'TRUE' THEN TRUE
+--         ELSE FALSE
+--     END AS resolved
+-- FROM latest_conversation AS lc
+-- JOIN your_agent_name AS a
+-- WHERE a.question = lc.conversation_text;
+
+
+--     -- insert into conversations_summary_only
+--     INSERT INTO my_postgres.summary (conversation_id, summary_text, resolved)
+--     SELECT 
+--         conversation_id,
+--         summary_text,
+--         resolved
+--     FROM latest_agent_answer
+--     WHERE conversation_id NOT IN (
+--         SELECT conversation_id 
+--         FROM my_postgres.summary
+--     );
+-- )
+
+
 
 
 
