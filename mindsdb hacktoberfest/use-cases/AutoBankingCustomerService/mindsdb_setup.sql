@@ -25,6 +25,7 @@ USING
     prompt_template = '',
     timeout = 30;
 
+-- suggest that we set the response format as JSON for easier parsing later
 CREATE AGENT test_agent
 USING
     data = {
@@ -137,6 +138,53 @@ SHOW TRIGGERS;
 --         FROM my_postgres.summary
 --     );
 -- )
+
+
+-- another way 
+-- CREATE JOB process_new_conversations (
+    
+--     -- Process and insert in one go using CTEs
+--     INSERT INTO my_postgres.summary (conversation_id, summary_text, resolved)
+--     WITH latest_conversation AS (
+--         -- Get newest conversation
+--         SELECT 
+--             conversation_id,
+--             conversation_text,
+--             created_at
+--         FROM my_postgres.conversations_summary
+--         ORDER BY created_at DESC
+--         LIMIT 1
+--     ),
+--     agent_answer AS (
+--         -- Get agent's response
+--         SELECT 
+--             lc.conversation_id,
+--             m.response as agent_response
+--         FROM latest_conversation lc
+--         CROSS JOIN LATERAL (
+--             SELECT response
+--             FROM my_ai_model
+--             WHERE conversation_text = lc.conversation_text
+--         ) m
+--     )
+--     -- Parse and insert
+--     SELECT 
+--         conversation_id,
+--         -- Extract summary text
+--         TRIM(REGEXP_REPLACE(agent_response, '.*Summary: (.*)', '\1', 's')) as summary_text,
+--         -- Extract resolved status
+--         CASE 
+--             WHEN agent_response LIKE '%Status: RESOLVED%' THEN true
+--             WHEN agent_response LIKE '%Status: UNRESOLVED%' THEN false
+--             ELSE null
+--         END as resolved
+--     FROM agent_answer
+--     WHERE conversation_id NOT IN (
+--         SELECT conversation_id FROM my_postgres.summary
+--     );
+
+-- )
+-- EVERY 10 minutes;  -- Adjust frequency as needed
 
 
 
