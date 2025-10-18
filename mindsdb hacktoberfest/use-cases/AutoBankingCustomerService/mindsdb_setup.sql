@@ -119,3 +119,37 @@ SHOW TRIGGERS;
 -- )
 -- EVERY 1 MIN;
 
+-- connect to confluence
+CREATE DATABASE my_Confluence   
+WITH ENGINE = 'confluence',
+PARAMETERS = {
+  "api_base": "https://jiaqicheng1998.atlassian.net",
+  "username": "jiaqicheng1998@gmail.com",
+  "password":""
+};
+
+-- create knowledge base
+CREATE KNOWLEDGE_BASE my_confluence_kb
+USING
+    embedding_model = {
+        "provider": "openai",
+        "model_name": "text-embedding-3-small",
+        "api_key":""
+    },
+    content_columns = ['body_storage_value'],
+    id_column = 'id';
+
+DESCRIBE KNOWLEDGE_BASE my_confluence_kb;
+
+INSERT INTO my_confluence_kb (
+    SELECT id, title, body_storage_value
+    FROM my_confluence.pages
+    WHERE id IN ('360449','589825')
+);
+
+-- verify data inserted
+SELECT COUNT(*) as total_rows FROM my_confluence_kb;
+
+SELECT * FROM my_confluence_kb
+WHERE chunk_content = 'Consumer Focus'
+LIMIT 3;
